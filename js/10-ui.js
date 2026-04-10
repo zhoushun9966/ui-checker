@@ -266,3 +266,19 @@ window.addEventListener('resize', () => {
 document.addEventListener('click', e => {
   if(!e.target.closest('.export-split') && !e.target.closest('#export-dropdown')) closeExportDropdown();
 });
+// 等待 DOM 加载完成
+document.addEventListener('DOMContentLoaded', () => {
+  const btnResource = document.getElementById('btn-resource-library');
+  
+  if (btnResource) {
+    btnResource.addEventListener('click', () => {
+      // 👉 【必须修改】替换为你们真实的内网资源库链接
+      const resourceUrl = "http://10.225.139.192/#/mockup"; 
+      
+      // 在新标签页打开资源库
+      window.open(resourceUrl, '_blank');
+      
+      console.log("[UI工具] 正在前往资源库...");
+    });
+  }
+});
