@@ -146,3 +146,45 @@ function syncCanvasSize() {
   zoomInfo.textContent=Math.round(zoomLevel/(typeof ZOOM_BASE!=='undefined'?ZOOM_BASE:0.7)*100)+'%';
   return true;
 }
+// ==========================================
+// 插件通信接收器 (纯净版)
+window.addEventListener("message", (e) => {
+  if (!e.data) return;
+
+  // 1. 响应状态查询：多重判定法
+  if (e.data.type === "UI_TOOL_PING") {
+    const comparePanel = document.getElementById('panel-compare');
+    const compareBtn = document.getElementById('btn-start-compare');
+    
+    // 判定方法 1：检查对比面板的实际计算样式（解决 CSS 类名判定失效问题）
+    let isVisible = false;
+    if (comparePanel) {
+      const style = window.getComputedStyle(comparePanel);
+      isVisible = style.display !== 'none' && style.visibility !== 'hidden';
+    }
+
+    // 判定方法 2：检查按钮文字是否为“停止对比”
+    const isStopMode = compareBtn && (compareBtn.innerText.includes('停止') || compareBtn.innerText.includes('Stop'));
+
+    // 只要满足其中一个条件，就告诉插件“我很忙”
+    const isBusy = isVisible || isStopMode;
+    
+    console.log(`[UI助手] 当前忙碌状态判定: ${isBusy}`);
+    window.postMessage({ type: "UI_TOOL_PONG", isComparing: isBusy }, "*");
+  }
+
+  // 2. 接收并渲染图片（保持不变）
+  if (e.data.type === "UI_TOOL_RENDER") {
+    const { base64, target } = e.data;
+    const input = document.getElementById(`file-input-${target}`);
+    if (!input || !base64) return;
+
+    fetch(base64).then(res => res.blob()).then(blob => {
+      const file = new File([blob], `auto_${Date.now()}.png`, { type: "image/png" });
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }).catch(err => console.error("渲染失败:", err));
+  }
+});
