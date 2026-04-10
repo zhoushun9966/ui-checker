@@ -282,3 +282,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+// 确保在网页 DOM 加载完成后执行
+document.addEventListener('DOMContentLoaded', () => {
+  const btnResource = document.getElementById('btn-resource-library');
+  const psFileInput = document.getElementById('file-input-ps'); // 你的设计稿 input ID
+
+  // 1. 之前加的点击跳转逻辑保持不变...
+  if (btnResource) {
+    btnResource.addEventListener('click', () => {
+      const resourceUrl = "http://10.xxx.xxx.xxx/your-resource-library-url"; 
+      window.open(resourceUrl, '_blank');
+    });
+  }
+
+  // 2. 【新增】监听设计稿输入框的变化，自动隐藏/显示按钮
+  if (btnResource && psFileInput) {
+    psFileInput.addEventListener('change', (e) => {
+      // 如果输入框里有文件了（不管是怎么传进来的）
+      if (e.target.files && e.target.files.length > 0) {
+        btnResource.style.display = 'none'; // 隐藏按钮
+      } else {
+        btnResource.style.display = 'inline-block'; // 没有文件时恢复显示
+      }
+    });
+  }
+});
